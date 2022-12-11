@@ -1,0 +1,68 @@
+{
+  "web": {
+    "host": "0.0.0.0",
+    "port": 5000,
+    "debug": true
+  },
+  "sql": {
+    "mysql": false,
+    "host": "data.db",
+    "port": 0,
+    "user": "",
+    "password": "",
+    "database": "data"
+  },
+  "servers": [],
+  "ark_message_filter": {
+    "startswith": [
+      "SERVER:",
+      "管理員指令"
+    ],
+    "include": [
+      "被自動摧毀了！",
+      "has entered your zone.",
+      "馴養了 一隻",
+      "Souls were destroyed by ",
+      "Soul was destroyed by ",
+      "擊殺!",
+      "已死亡!",
+      "killed!",
+      "你的部落 killed",
+      "killed ，擊殺者：",
+      "認養了",
+      "摧毀了你的",
+      "拆除了",
+      "放生了'",
+      "你的部落馴養了一隻",
+      "冷藏了",
+      "加入了部落！"
+    ],
+    "endswith": []
+  },
+  "discord": {
+    "token": "",
+    "prefixs": [],
+    "admin_role": 0
+  },
+  "broadcast": {
+    "save": "伺服器將於 $TIME 分鐘後存檔。\nServer will save in $TIME min.",
+    "stop": "伺服器將於 $TIME 分鐘後關閉。\nServer will shutdown in $TIME min.",
+    "restart": "伺服器將於 $TIME 分鐘後重啟。\nServer will restart in $TIME min.",
+    "saving": "儲存中...\nSaving..."
+  },
+  "state_message": {
+    "running": "🟢 運作中",
+    "stopped": "🔴 未開啟",
+    "starting": "🔵 正在啟動中",
+    "rcon_disconnect": "🟡 RCON失去連線",
+    "network_disconnect": "🟠 對外失去連線"
+  },
+  "logging": {
+    "level": "INFO",
+    "backup_count": 3,
+    "dir_path": "logs"
+  },
+  "low_battery": 30,
+  "timezone": 8,
+  "log_level": "INFO"
+}

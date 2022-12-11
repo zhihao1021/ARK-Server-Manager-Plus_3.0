@@ -1,0 +1,28 @@
+{
+    "unique-key": "",
+    "dir_path": "C:\\asmdata\\Servers\\Server",
+    "file_name": "Ragnarok.ark",
+    "display_name": "Ragnarok",
+    "rcon": {
+        "address": "127.0.0.1",
+        "port": 0,
+        "password": "",
+        "timeout": 60
+    },
+    "discord": {
+        "text_channel_id": 0,
+        "state_channel_id": 0
+    },
+    "save_time": [
+        {
+            "time": "00:00:00.000000",
+            "clear_dino": false
+        }
+    ],
+    "restart_time": [
+        {
+            "time": "00:00:00.000000",
+            "clear_dino": false
+        }
+    ]
+}

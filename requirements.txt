@@ -1,0 +1,7 @@
+orjson
+rcon
+flask
+flask-socketio
+gunicorn
+eventlet
+py-cord
