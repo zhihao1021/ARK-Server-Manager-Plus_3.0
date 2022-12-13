@@ -1,6 +1,14 @@
 from modules import Json
 from os.path import isfile
 from datetime import timedelta, timezone, time
+from logging import getLevelName
+
+# CRITICAL
+# ERROR
+# WARNING
+# INFO
+# DEBUG
+# NOTSET
 
 class _ARKTimeData:
     TIME: time
@@ -36,6 +44,21 @@ class ARKServerConfig:
         self.DISCORD_STATE_CHANNEL = data["discord"]["state_channel_id"]
         self.SAVE_TIME = [_ARKTimeData(*dict_.values()) for dict_ in data["save_time"]]
         self.RESTART_TIME = [_ARKTimeData(*dict_.values()) for dict_ in data["restart_time"]]
+
+class LoggingConfig:
+    STREAM_LEVEL: int = 20
+    FILE_LEVEL: int = 20
+    BACKUP_COUNT: int
+    FILE_NAME: str
+    DIR_PATH: str
+    def __init__(self, data: dict) -> None:
+        if type(getLevelName(data["stream_level"])) == int:
+            self.STREAM_LEVEL = data["stream_level"]
+        if type(getLevelName(data["file_level"])) == int:
+            self.FILE_LEVEL = data["file_level"]
+        self.BACKUP_COUNT = abs(data["backup_count"])
+        self.FILE_NAME = data["file_name"]
+        self.DIR_PATH = data["dir_path"]
 
 CONFIG = {
     "web": {
@@ -99,9 +122,34 @@ CONFIG = {
         "network_disconnect": "🟠 對外失去連線"
     },
     "logging": {
-        "level": "INFO",
-        "backup_count": 3,
-        "dir_path": "logs"
+        "main": {
+            "stream_level": "INFO",
+            "file_level": "INFO",
+            "backup_count": 3,
+            "file_name": "main",
+            "dir_path": "logs",
+        },
+        "discord": {
+            "stream_level": "WARNING",
+            "file_level": "INFO",
+            "backup_count": 3,
+            "file_name": "discord",
+            "dir_path": "logs",
+        },
+        "web": {
+            "stream_level": "INFO",
+            "file_level": "INFO",
+            "backup_count": 3,
+            "file_name": "web",
+            "dir_path": "logs",
+        },
+        "rcon": {
+            "stream_level": "INFO",
+            "file_level": "INFO",
+            "backup_count": 3,
+            "file_name": "rcon",
+            "dir_path": "logs",
+        },
     },
     "low_battery": 30,
     "timezone": 8,
@@ -162,9 +210,12 @@ STATE_STARTING: str = CONFIG["state_message"]["starting"]
 STATE_RCON: str = CONFIG["state_message"]["rcon_disconnect"]
 STATE_NET: str = CONFIG["state_message"]["network_disconnect"]
 
-LOGGING_LEVEL: str = CONFIG["logging"]["level"]
-LOGGING_BACKUP_COUNT: str = CONFIG["logging"]["backup_count"]
-LOGGING_DIR_PATH: str = CONFIG["logging"]["dir_path"]
+LOGGING_CONFIG: dict[str, LoggingConfig] = {
+    "main": LoggingConfig(CONFIG["logging"]["main"]),
+    "discord": LoggingConfig(CONFIG["logging"]["discord"]),
+    "web": LoggingConfig(CONFIG["logging"]["web"]),
+    "rcon": LoggingConfig(CONFIG["logging"]["rcon"]),
+}
 
 LOW_BATTERY: int = CONFIG["low_battery"]
 TIMEZONE: timezone = timezone(timedelta(hours=CONFIG["timezone"]))

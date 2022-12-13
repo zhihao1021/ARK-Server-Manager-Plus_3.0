@@ -5,8 +5,6 @@ from os.path import abspath, split, splitext, exists, isdir, join
 from datetime import datetime, timedelta
 from io import TextIOWrapper
 from traceback import format_exception, format_stack
-import logging
-logging.getLevelName
 
 class C_Formatter(Formatter):
     def format(self, record: LogRecord) -> str:
@@ -86,6 +84,7 @@ class C_FileHandler(StreamHandler):
         return f"{fileTitle} {strTime}.log"
     
     def _delete_file(self) -> None:
+        if self.backupCount == 0: return
         dirPath, fileName = split(self.baseFilename)
         fileTitle, _ = splitext(fileName)
         fileTitle += " "
@@ -112,17 +111,20 @@ class C_StreamHandler(StreamHandler):
         super().__init__(*args, **kwargs)
         self.setFormatter(C_Formatter())
 
-if not isdir(LOGGING_DIR_PATH): makedirs(LOGGING_DIR_PATH)
-
 _LOGGER_NAME = ["main", "discord", "web", "rcon"]
 for name in _LOGGER_NAME:
-    _file_name = join(LOGGING_DIR_PATH, f"{name}.log")
-    _stream_handler = C_StreamHandler()
-    _file_handler = C_FileHandler(_file_name, LOGGING_BACKUP_COUNT)
+    _config = LOGGING_CONFIG[name]
+    if not isdir(_config.DIR_PATH):
+        makedirs(_config.DIR_PATH)
+    _file_name = join(_config.DIR_PATH, f"{_config.FILE_NAME}.log")
     _logger = getLogger(name)
+    _logger.setLevel(10)
+    _stream_handler = C_StreamHandler()
+    _stream_handler.setLevel(_config.STREAM_LEVEL)
     _logger.addHandler(_stream_handler)
+    _file_handler = C_FileHandler(_file_name, _config.BACKUP_COUNT)
+    _file_handler.setLevel(_config.FILE_LEVEL)
     _logger.addHandler(_file_handler)
-    _logger.setLevel(LOGGING_LEVEL)
 
 MAIN_LOGGER = getLogger("main")
 DISCORD_LOGGER = getLogger("discord")

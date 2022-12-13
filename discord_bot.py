@@ -11,7 +11,7 @@ class DiscordClient(Client):
         self.first_connect = True
     
     async def on_ready(self):
-        pass
+        DISCORD_LOGGER.info(f"Discord Bot {self.user} Ready!")
     
     def run(self, *args, **kwargs) -> None:
         return super().run(DISCORD_TOKEN, *args, **kwargs)
@@ -21,3 +21,7 @@ def run() -> Thread:
     thread = Thread(target=client.run, name="Discord")
     thread.start()
     return thread
+
+if __name__ == "__main__":
+    client = DiscordClient()
+    client.run()
