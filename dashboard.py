@@ -1,5 +1,4 @@
-from config import *
-from logging_config import WEB_LOGGER
+from configs import *
 from flask import Flask, render_template, url_for, redirect, request, make_response
 import eventlet
 from eventlet import wsgi
@@ -109,3 +108,6 @@ def run_thread() -> Thread:
     thread = Thread(target=wsgi.server, args=(eventlet.listen((WEB_HOST, WEB_PORT)), app, WEB_LOGGER), name="Dashboard")
     thread.start()
     return thread
+
+if __name__ == "__main__":
+    wsgi.server(eventlet.listen((WEB_HOST, WEB_PORT)), app, WEB_LOGGER)

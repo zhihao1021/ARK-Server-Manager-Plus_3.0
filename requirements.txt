@@ -5,3 +5,4 @@ flask-socketio
 gunicorn
 eventlet
 py-cord
+psutil

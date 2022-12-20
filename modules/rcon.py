@@ -1,5 +1,5 @@
 from rcon.source import Client
-from config import *
+from configs import *
 
 class RCON_Client:
     def __init__(self, unique_key: str) -> None:

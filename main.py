@@ -1,5 +1,4 @@
-from config import *
-import logging_config
+from configs import *
 from dashboard import run_thread
 
 thr = run_thread()

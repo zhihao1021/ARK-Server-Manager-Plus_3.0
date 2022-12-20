@@ -8,12 +8,9 @@
 # sock.send(b"\xff\xff\xff\xffU\xff\xff\xff\xff")
 # print(sock.recv(65565))
 
-from modules import C_Formatter
-from logging import getLogger, StreamHandler
+import psutil
+from time import time_ns, sleep
 
-handler = StreamHandler()
-handler.setFormatter(C_Formatter())
-logger = getLogger("main")
-logger.addHandler(handler)
+p = psutil.Process(15476)
 
-logger.warning("123 %s", "456")
+print(p.cpu_percent(1))

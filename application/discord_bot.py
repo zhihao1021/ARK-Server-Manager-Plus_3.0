@@ -12,10 +12,9 @@ class DiscordClient(Client):
     
     async def on_ready(self):
         DISCORD_LOGGER.warning(f"Discord Bot `{self.user}` Ready!")
-
+    
     async def _state_update(self):
-        while True:
-            pass
+        pass
 
     def run(self, *args, **kwargs) -> None:
         return super().run(DISCORD_TOKEN, *args, **kwargs)
