@@ -196,6 +196,7 @@ class ARKServer:
                     mes = message.replace("$T", str(minute))
                     await self.rcon.run(f"broadcast {mes}")
                     await self.__add_to_chat(message=mes)
+                    self.__logger.info(f"[{['Save', 'Stop', 'Restart'][mode]}]Remain {countdown}s.")
                 countdown -= 1
                 await asleep(1)
             await self.rcon.run(f"broadcast {BROADCAST_MESSAGES.saving}")
@@ -231,11 +232,13 @@ class ARKServer:
             await self.rcon.run(f"broadcast {BROADCAST_MESSAGES.saved}")
             await self.__add_to_chat(message=BROADCAST_MESSAGES.saved)
             if mode < 1:
+                self.__logger.info("[Save]Finish.")
                 return
             # 關閉伺服器
             self.__logger.warning("Exit.")
             await self.rcon.run("doexit")
             if mode < 2:
+                self.__logger.info("[Stop]Finish.")
                 return
             # 等待伺服器完全關閉
             while self.server_status():
@@ -243,6 +246,7 @@ class ARKServer:
             await asleep(5)
             # 重啟伺服器
             await self.start()
+            self.__logger.info("[Restart]Finish.")
         except CancelledError:
             await self.rcon.run("Slomo 1")
             for task in command_task:
