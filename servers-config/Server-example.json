@@ -1,28 +1,35 @@
 {
-    "unique-key": "",
-    "dir_path": "C:\\asmdata\\Servers\\Server",
-    "file_name": "Ragnarok.ark",
-    "display_name": "Ragnarok",
+    "unique-key": "b971b0af",
+    "dir-path": "E:\\asmdata\\Servers\\Server1",
+    "file-name": "TheIsland.ark",
+    "display-name": "TheIsland",
     "rcon": {
-        "address": "127.0.0.1",
-        "port": 0,
-        "password": "",
+        "host": "127.0.0.1",
+        "port": 32330,
+        "password": "kTuvCJvDAvEet1Dd",
         "timeout": 60
     },
     "discord": {
-        "text_channel_id": 0,
-        "state_channel_id": 0
+        "text-channel-id": 989088298569973780,
+        "status-channel-id": 989088312427966464
     },
-    "save_time": [
+    "save-time": [
         {
-            "time": "00:00:00.000000",
-            "clear_dino": false
+            "time": "23:05:00",
+            "clear-dino": true
         }
     ],
-    "restart_time": [
+    "restart-time": [
         {
-            "time": "00:00:00.000000",
-            "clear_dino": false
+            "time": "12:00:00",
+            "clear-dino": false
         }
-    ]
+    ],
+    "logging": {
+        "stream-level": "INFO",
+        "file-level": "INFO",
+        "backup-count": 30,
+        "file-name": "TheIsland-b971b0af",
+        "dir-path": "logs/arks"
+    }
 }

@@ -13,12 +13,8 @@ class Json:
         """
         將`data`轉換為字串。
         
-        data: :class:`Any`
-            輸入資料。
-        option: :class:`int`
-            orjson選項。
-
-        return: :class:`str`
+        :param data: 輸入資料。
+        :param option: orjson選項。
         """
         if option != None: return orjson.dumps(data, option=option).decode('utf-8')
         return orjson.dumps(data).decode('utf-8')
@@ -28,10 +24,7 @@ class Json:
         """
         將`data`轉換為資料。
         
-        data: :class:`bytes | bytearray | memoryview | str`
-            輸入文字。
-
-        return: :class:`Any`
+        :param data: 輸入文字。
         """
         return orjson.loads(data)
 
@@ -44,14 +37,9 @@ class Json:
         """
         將`data`儲存於`file`中。
         
-        file: :class:`str`
-            文件路徑。
-        data: :class:`Any`
-            輸入資料。
-        option: :class:`int`
-            orjson選項。
-
-        return: :class:`None`
+        :param file: 文件路徑。
+        :param data: 輸入資料。
+        :param option: orjson選項。
         """
         with open(file, mode='wb') as in_file:
             in_file.write(orjson.dumps(data, option=option))
@@ -62,10 +50,7 @@ class Json:
         """
         從`file`中讀取資料。
         
-        file: :class:`str`
-            文件路徑。
-
-        return: :class:`Any`
+        :param file: 文件路徑。
         """
         with open(file, mode='rb') as in_file:
             data = in_file.read()

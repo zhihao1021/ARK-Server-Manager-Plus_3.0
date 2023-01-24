@@ -129,4 +129,5 @@ dmypy.json
 .pyre/
 
 *.bak
+test.py
 config.json

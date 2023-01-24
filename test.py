@@ -1,16 +1,30 @@
-# import socket
+# from discord_bot import DiscordBot
 
-# sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-# sock.settimeout(2)
-# sock.connect(("59.127.95.47", 27019))
+# bot = DiscordBot()
+# bot.startup()
+# input()
 
-# # sock.send(b"\xff\xff\xff\xffTSource Engine Query\x00\x0a\x08\x5e\xea")
-# sock.send(b"\xff\xff\xff\xffU\xff\xff\xff\xff")
-# print(sock.recv(65565))
+from asyncio import all_tasks, new_event_loop, get_event_loop, sleep, set_event_loop_policy, WindowsSelectorEventLoopPolicy, CancelledError, Task
 
-import psutil
-from time import time_ns, sleep
+async def main():
+    try:
+        while True:
+            await sleep(1)
+            print(2)
+    except CancelledError:
+        return
 
-p = psutil.Process(15476)
+def job(task: Task):
+    from time import sleep
+    sleep(5)
+    task.cancel()
 
-print(p.cpu_percent(1))
+if __name__ == "__main__":
+    from threading import Thread
+    set_event_loop_policy(WindowsSelectorEventLoopPolicy())
+
+    loop = new_event_loop()
+    task = loop.create_task(main())
+    Thread(target=job, args=(task,)).start()
+    loop.run_until_complete(task)
+    loop.close()
