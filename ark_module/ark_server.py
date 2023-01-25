@@ -1,6 +1,6 @@
 from .rcon_connection import RCONSession
 
-from configs import ALL_DINO_CLASSES, ARKTimeData, ARKServerConfig, BROADCAST_MESSAGES, FILTERS, TIMEZONE, SERVERS
+from configs import ARKTimeData, ARKServerConfig, BROADCAST_MESSAGES, DISCORD_CONFIG, FILTERS, TIMEZONE, SERVERS
 from modules import Json, Thread
 from swap import DISCORD_CHAT_QUEUE
 
@@ -192,11 +192,6 @@ class ARKServer:
         return True in result
     
     async def __save(self, countdown: int=0, clear_dino: bool=False, mode=0) -> bool:
-        async def clean_dino(class_queue: Queue):
-            while not class_queue.empty():
-                dino_class = await class_queue.get()
-                print(dino_class, end="\r")
-                await self.rcon.run(f"DestroyWildDinoClasses \"{dino_class}\" 1", timeout=0)
         if mode == 0:
             message = BROADCAST_MESSAGES.save
         elif mode == 1:
@@ -226,39 +221,35 @@ class ARKServer:
                 # await self.rcon.run("Slomo 0")
                 self.__logger.warning("Pre Save World.")
                 await self.rcon.run("saveworld")
-                await asleep(1)
                 self.__logger.warning("Clearing Dinos.")
                 loop = get_event_loop()
                 def __get_dinos():
                     res = run(f"dinos_reader/Test.exe \"{map_path}\"", stdout=PIPE, stderr=PIPE)
-                    return res.stdout, res.stderr
+                    err = res.stderr
+                    if type(err) == bytes:
+                        err = err.decode()
+                    return res.stdout, err
                 # 讀取檔案
-                class_queue = Queue()
                 try:
                     res, err = await loop.run_in_executor(None, __get_dinos)
                     dino_classes: list[str] = Json.loads(res)
-                    for dino_class in dino_classes:
-                        await class_queue.put(dino_class)
                 except:
-                    self.__logger.warning("Load Dinos Failed.")
-                    self.__logger.warning(f"Error Message: {err}")
-                    for dino_class in ALL_DINO_CLASSES:
-                        await class_queue.put(dino_class)
+                    self.__logger.error("Read Map Error: " + err)
+                    await self.__add_to_chat(message=f"<@{DISCORD_CONFIG.rcon_role}> 讀取地圖檔失敗，建議檢查地圖檔。 (位置:`" + map_path + "`)")
+                    await self.__add_to_chat(message="```Error Message:\n" + err + "```")
+                    return False
                 # 清除恐龍
-                print("")
                 __tasks = [
-                    create_task(clean_dino(class_queue))
-                    for _ in range(10)
+                    create_task(self.rcon.run(f"DestroyWildDinoClasses \"{dino_class}\" 1", timeout=0), name="DestroyDino")
+                    for dino_class in dino_classes
                 ]
                 await gather(*__tasks)
                 # 清除所有
-                self.__logger.warning("Start Clear All Dino.")
                 await self.rcon.run("DestroyWildDinos")
                 # await self.rcon.run("Slomo 1")
             # 儲存檔案
             self.__logger.warning("Save World.")
             await self.rcon.run("saveworld")
-            await asleep(1)
             await self.rcon.run(f"broadcast {BROADCAST_MESSAGES.saved}")
             await self.__add_to_chat(message=BROADCAST_MESSAGES.saved)
             time_format = datetime.now(tz=TIMEZONE).replace(microsecond=0).isoformat().replace(":", "_")

@@ -102,7 +102,7 @@ class DiscordBot(Bot):
                 await gather(*tasks)
                 await asleep(1)
             except CancelledError:
-                # print("Update Be Cancel")
+                print("Update Be Cancel")
                 pass
     
     async def sync_chat_channel(self):
@@ -118,7 +118,11 @@ class DiscordBot(Bot):
                 data: dict[str, str] = await DISCORD_CHAT_QUEUE.get()
                 unique_key, content = data.values()
                 channel = self.get_channel(ARK_SERVERS[unique_key].config.discord_config.text_channel_id)
-                await channel.send(content)
+                if len(content) >= 2000:
+                    io = BytesIO(content.encode())
+                    await channel.send(file=File(io, filename="message.txt"))
+                else:
+                    await channel.send(content=content)
             except CancelledError:
                 pass
     
