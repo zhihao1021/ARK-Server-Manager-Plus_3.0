@@ -97,7 +97,8 @@ class RCONSession:
             return res.strip()
         except ConnectionError:
             await asleep(1)
-            return await self.__run(command=command)
+            res = await self.__run(command=command)
+            return res
         except CancelledError:
             return None
         except Exception as exc:
