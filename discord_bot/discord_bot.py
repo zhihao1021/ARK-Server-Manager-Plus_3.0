@@ -50,10 +50,12 @@ class DiscordBot(Bot):
             last_status: Optional[int]=None
         ) -> int:
             # 正常運行
+            if last_status == None:
+                last_status = 1
             if server_status and rcon_status: return 0
             elif server_status:
                 # 啟動中
-                if last_status == 1: return 2
+                if last_status == 1 or last_status == 2: return 2
                 # RCON 失去連線
                 return 3
             # 完全中斷
@@ -80,7 +82,7 @@ class DiscordBot(Bot):
                         elif status_code == 1:
                             result += STATUS_MESSAGES.stopped
                         elif status_code == 2:
-                            result += STATUS_MESSAGES.running
+                            result += STATUS_MESSAGES.starting
                         elif status_code == 3:
                             result += STATUS_MESSAGES.rcon_disconnect
                         channel = self.get_channel(ARK_SERVERS[unique_key].config.discord_config.text_channel_id)

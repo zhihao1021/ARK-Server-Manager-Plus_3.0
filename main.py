@@ -15,12 +15,12 @@ if __name__ == "__main__":
     bot.startup()
 
     from time import sleep, time
-    sleep(5)
-    from asyncio import new_event_loop
-    loop = new_event_loop()
-    timer = time()
-    loop.run_until_complete(ARK_SERVERS["b971b0af"].rcon.run("test", timeout=2))
-    print(time() - timer)
-    loop.close()
+    # sleep(5)
+    # from asyncio import new_event_loop
+    # loop = new_event_loop()
+    # timer = time()
+    # loop.run_until_complete(ARK_SERVERS["b971b0af"].rcon.run("test", timeout=2))
+    # print(time() - timer)
+    # loop.close()
     while True:
         sleep(1)

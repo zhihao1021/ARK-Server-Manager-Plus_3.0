@@ -1,95 +1,89 @@
 {
-  "web": {
-      "host": "0.0.0.0",
-      "port": 5000,
-      "debug": true
-  },
-  "sql": {
-      "mysql": false,
-      "host": "",
-      "port": 0,
-      "user": "",
-      "password": "",
-      "database": "data"
-  },
-  "servers": [
-
-  ],
-  "ark_message_filter": {
-      "startswith": [
-          "SERVER:",
-          "管理員指令",
-          "部落"
-      ],
-      "include": [
-          "你的部落馴養了一隻",
-          "被自動摧毀了！",
-          "加入了部落！",
-          "已死亡!",
-          "擊殺!",
-          "馴養了 一隻",
-          "摧毀了你的",
-          "認養了",
-          "拆除了",
-          "放生了'",
-          "冷藏了",
-          "你的部落 killed",
-          "killed ，擊殺者：",
-          "killed!",
-          "has entered your zone.",
-          "Soul was destroyed by ",
-          "Souls were destroyed by "
-      ],
-      "endswith": []
-  },
-  "discord": {
-      "token": "",
-      "prefixs": [],
-      "admin_role": 0
-  },
-  "broadcast": {
-      "save": "伺服器將於 $TIME 分鐘後存檔。\nServer will save in $TIME min.",
-      "stop": "伺服器將於 $TIME 分鐘後關閉。\nServer will shutdown in $TIME min.",
-      "restart": "伺服器將於 $TIME 分鐘後重啟。\nServer will restart in $TIME min.",
-      "saving": "儲存中...\nSaving..."
-  },
-  "state_message": {
-      "running": "🟢 運作中",
-      "stopped": "🔴 未開啟",
-      "starting": "🔵 正在啟動中",
-      "rcon_disconnect": "🟡 RCON失去連線",
-      "network_disconnect": "🟠 對外失去連線"
-  },
-  "logging": {
-      "main": {
-          "stream_level": "INFO",
-          "file_level": "INFO",
-          "backup_count": 3,
-          "file_name": "main",
-          "dir_path": "logs"
-      },
-      "discord": {
-          "stream_level": "WARNING",
-          "file_level": "INFO",
-          "backup_count": 3,
-          "file_name": "discord",
-          "dir_path": "logs"
-      },
-      "web": {
-          "stream_level": "INFO",
-          "file_level": "INFO",
-          "backup_count": 3,
-          "file_name": "web",
-          "dir_path": "logs"
-      },
-      "rcon": {
-          "stream_level": "INFO",
-          "file_level": "INFO",
-          "backup_count": 3,
-          "file_name": "rcon",
-          "dir_path": "logs"
-      }
-  },
-  "low_battery": 30,
-  "timezone": 8
+    "web": {
+        "host": "0.0.0.0",
+        "port": 5000,
+        "debug": true
+    },
+    "discord": {
+        "token": "",
+        "prefixs": [],
+        "rcon-role": 0
+    },
+    "servers": [
+        "servers-config/server-example.json"
+    ],
+    "ark-message-filter": {
+        "startswith": [
+            "SERVER:",
+            "管理員指令"
+        ],
+        "include": [
+            "被自動摧毀了！",
+            "has entered your zone.",
+            "馴養了 一隻",
+            "Souls were destroyed by ",
+            "Soul was destroyed by ",
+            "擊殺!",
+            "已死亡!",
+            "killed!",
+            "你的部落 killed",
+            "killed ，擊殺者：",
+            "認養了",
+            "摧毀了你的",
+            "拆除了",
+            "放生了'",
+            "你的部落馴養了一隻",
+            "冷藏了",
+            "加入了部落！"
+        ],
+        "endswith": []
+    },
+    "broadcast": {
+        "save": "伺服器將於 $TIME 分鐘後存檔。\nServer will save in $TIME min.",
+        "stop": "伺服器將於 $TIME 分鐘後關閉。\nServer will shutdown in $TIME min.",
+        "start": "啟動伺服器。\nStart Server.",
+        "restart": "伺服器將於 $TIME 分鐘後重啟。\nServer will restart in $TIME min.",
+        "saving": "儲存中...\nSaving...",
+        "saved": "儲存完成!\nWorld Saved!"
+    },
+    "status-message": {
+        "running": "🟢 運作中",
+        "stopped": "🔴 未開啟",
+        "starting": "🔵 正在啟動中",
+        "rcon-disconnect": "🟡 RCON失去連線",
+        "network-disconnect": "🟠 對外失去連線"
+    },
+    "logging": {
+        "main": {
+            "stream-level": "INFO",
+            "file-level": "INFO",
+            "backup-count": 3,
+            "file-name": "main",
+            "dir-path": "logs"
+        },
+        "discord": {
+            "stream-level": "WARNING",
+            "file-level": "INFO",
+            "backup-count": 3,
+            "file-name": "discord",
+            "dir-path": "logs"
+        },
+        "web": {
+            "stream-level": "INFO",
+            "file-level": "INFO",
+            "backup-count": 3,
+            "file-name": "web",
+            "dir-path": "logs"
+        },
+        "rcon": {
+            "stream-level": "INFO",
+            "file-level": "INFO",
+            "backup-count": 3,
+            "file-name": "rcon",
+            "dir-path": "logs"
+        }
+    },
+    "database": "data.db",
+    "low-battery": 30,
+    "timezone": 8
 }

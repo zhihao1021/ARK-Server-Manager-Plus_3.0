@@ -27,13 +27,15 @@ class ArkCog(Cog):
             self,
             server_status: bool,
             rcon_status: bool,
-            last_status: Optional[int]=None
+            last_status: Optional[None]=None
         ) -> int:
+            if last_status == None:
+                last_status = 1
             # 正常運行
             if server_status and rcon_status: return 0
             elif server_status:
                 # 啟動中
-                if last_status == 1: return 2
+                if last_status == 1 or last_status == 2: return 2
                 # RCON 失去連線
                 return 3
             # 完全中斷
@@ -187,7 +189,7 @@ class ArkCog(Cog):
             loop = get_event_loop()
             status_code = self.__count_statuscode(
                 await loop.run_in_executor(None, server.server_status),
-                await server.rcon_status(timeout=1),
+                await server.rcon_status(),
                 self.last_status.get(unique_key)
             )
             if status_code != self.last_status.get(unique_key):
@@ -199,7 +201,7 @@ class ArkCog(Cog):
             elif status_code == 1:
                 result += STATUS_MESSAGES.stopped
             elif status_code == 2:
-                result += STATUS_MESSAGES.running
+                result += STATUS_MESSAGES.starting
             elif status_code == 3:
                 result += STATUS_MESSAGES.rcon_disconnect
             if type(mes) == Message:

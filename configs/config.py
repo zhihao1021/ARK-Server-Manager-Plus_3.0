@@ -54,17 +54,26 @@ class _DiscordChannels(BaseModel):
     text_channel_id: int=Field(alias="text-channel-id")
     status_channel_id: int=Field(alias="status-channel-id")
 
-class _ARKTimeData(BaseModel):
+class ARKTimeData(BaseModel):
     time: Union[time, str]
-    clear_dino: bool=Field(alias="clear-dino")
+    clear_dino: bool=Field(False, alias="clear-dino")
+    method: str
     
     @validator("time")
     def time_validator(cls, value):
-        if type(value) == str:
+        if type(value) != time:
+            if type(value) != str:
+                raise ValueError(f"Illegal time format: \"{value}\"")
             value = time.fromisoformat(value)
-        if type(value) == time:
-            return value
-        raise ValueError(f"Illegal time format: \"{value}\"")
+        if value.tzinfo == None:
+            value = value.replace(tzinfo=TIMEZONE)
+        return value
+    
+    @validator("method")
+    def method_validator(cls, value: str):
+        if value.lower() in ["restart", "save", "stop", "start"]:
+            return value.lower()
+        raise ValueError(f"Illegal method: \"{value}\"")
 
 class ARKServerConfig(BaseModel):
     unique_key: str=Field(alias="unique-key")
@@ -73,8 +82,7 @@ class ARKServerConfig(BaseModel):
     display_name: str=Field(alias="display-name")
     rcon_config: _RCONConfig=Field(alias="rcon")
     discord_config: _DiscordChannels=Field(alias="discord")
-    save_time: list[_ARKTimeData]=Field(alias="save-time")
-    restart_time: list[_ARKTimeData]=Field(alias="restart-time")
+    time_table: list[ARKTimeData]=Field(alias="time-table")
     logging_config: LoggingConfig=Field(alias="logging")
     logger_name: Optional[str]=None
 
@@ -207,6 +215,8 @@ except: pass
 finally:
     Json.dump("config.json", CONFIG)
 
+TIMEZONE: timezone = timezone(timedelta(hours=CONFIG["timezone"]))
+
 WEB_CONFIG = WebConfig(**CONFIG["web"])
 DISCORD_CONFIG = DiscordConfig(**CONFIG["discord"])
 
@@ -235,7 +245,6 @@ for unique_key, server_config in SERVERS.items():
     })
 
 LOW_BATTERY: int = CONFIG["low-battery"]
-TIMEZONE: timezone = timezone(timedelta(hours=CONFIG["timezone"]))
 
 if False:
     from sqlite3 import connect

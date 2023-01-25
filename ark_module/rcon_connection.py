@@ -95,7 +95,7 @@ class RCONSession:
             )
             self.__timeout_task.cancel()
             return res.strip()
-        except ConnectionRefusedError:
+        except ConnectionError:
             self.__timeout_task.cancel()
             return None
         except CancelledError:

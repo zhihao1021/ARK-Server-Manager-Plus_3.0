@@ -15,7 +15,22 @@
     },
     "time-table": [
         {
-            "time": "14:28:00",
+            "time": "23:11:30",
+            "clear-dino": true,
+            "method": "start"
+        },
+        {
+            "time": "23:15:00",
+            "clear-dino": true,
+            "method": "save"
+        },
+        {
+            "time": "23:15:00",
+            "clear-dino": true,
+            "method": "stop"
+        },
+        {
+            "time": "23:15:00",
             "clear-dino": true,
             "method": "restart"
         }

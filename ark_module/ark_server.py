@@ -1,6 +1,6 @@
 from .rcon_connection import RCONSession
 
-from configs import ARKServerConfig, BROADCAST_MESSAGES, FILTERS, TIMEZONE, SERVERS
+from configs import ARKTimeData, ARKServerConfig, BROADCAST_MESSAGES, FILTERS, TIMEZONE, SERVERS
 from modules import Json, Thread
 from swap import DISCORD_CHAT_QUEUE
 
@@ -8,7 +8,8 @@ from asyncio import CancelledError, create_task, gather, get_event_loop, new_eve
 from datetime import datetime, time, timedelta
 from logging import getLogger
 from os import system
-from os.path import abspath, join
+from os.path import abspath, join, splitext
+from shutil import copyfile
 from subprocess import run, PIPE
 from typing import Optional
 
@@ -88,51 +89,62 @@ class ARKServer:
         """
         自動儲存。
         """
-        def future_day(now_datetime: datetime, time_: time) -> datetime:
+        def future_day(time_data: ARKTimeData) -> datetime:
+            time_ = time_data.time
             result = datetime.combine(now_datetime.date(), time_)
-            if time_ > now_datetime.time():
-                return result
-            return result + timedelta(days=1)
+            now_time = now_datetime.time()
+            now_time = now_time.replace(tzinfo=now_datetime.tzinfo)
+            if time_ < now_time:
+                result += timedelta(days=1)
+            return result
         while True:
             try:
-                # 檢查是否需要重啟
-                if await self.check_opera():
-                    await asleep(10)
-                    continue
-                if not self.server_status():
-                    await asleep(10)
-                    continue
-                if not await self.rcon_status():
+                # 檢查狀態
+                accessable = await self.check_accessable()
+                need_start = not self.server_status()
+                if not accessable and not need_start:
                     await asleep(10)
                     continue
                 # 目前時間
-                now_datetime = datetime.now()
+                now_datetime = datetime.now(tz=TIMEZONE)
                 # 下次存檔時間資料
-                __next_save = sorted(
-                    self.config.save_time,
-                    key=lambda timedata: future_day(now_datetime, time_=timedata.time)
-                )[0]
-                # 下次重啟時間資料
-                __next_restart = sorted(
-                    self.config.restart_time,
-                    key=lambda timedata: future_day(now_datetime, time_=timedata.time)
-                )[0]
-                # 時間差
-                __save_delta = future_day(now_datetime, __next_save.time) - now_datetime
-                __restart_delta = future_day(now_datetime, __next_restart.time) - now_datetime
-                # 計算並等待時間差
-                if __save_delta < __restart_delta:
-                    await asleep(__save_delta.total_seconds() - 305)
-                    now_datetime = datetime.now()
-                    __save_delta = future_day(now_datetime, __next_save.time) - now_datetime
-                    self.__logger.info(f"[Auto Save]Remain {__save_delta.total_seconds()}s.")
-                    await self.save(countdown=__save_delta.total_seconds(), clear_dino=__next_save.clear_dino)
+                save_table = sorted(
+                    self.config.time_table,
+                    key=future_day
+                )
+                if not need_start:
+                    save_table = filter(lambda time_date: time_date.method != "start", save_table)
                 else:
-                    await asleep(__restart_delta.total_seconds() - 305)
-                    now_datetime = datetime.now()
-                    __restart_delta = future_day(now_datetime, __next_restart.time) - now_datetime
-                    self.__logger.info(f"[Auto Restart]Remain {__restart_delta.total_seconds()}s.")
-                    await self.restart(countdown=__restart_delta.total_seconds(), clear_dino=__next_restart.clear_dino)
+                    save_table = filter(lambda time_date: time_date.method == "start", save_table)
+                try:
+                    next_save = tuple(save_table)[0]
+                except IndexError:
+                    await asleep(10)
+                    continue
+                # 計算時間差
+                target_time = future_day(next_save)
+                remain_time: timedelta = target_time - now_datetime
+                __cancel = False
+                while remain_time.total_seconds() > 305:
+                    __accessable = await self.check_accessable()
+                    __need_start = not self.server_status()
+                    if accessable !=  __accessable or need_start != __need_start:
+                        __cancel = True
+                        break
+                    remain_time = target_time - datetime.now(tz=TIMEZONE)
+                if __cancel:
+                    continue
+                remain_time = target_time - datetime.now(tz=TIMEZONE)
+                self.__logger.info(f"[Auto Save]Remain {remain_time.total_seconds()}s to {next_save.method.capitalize()}.")
+                if next_save.method == "start":
+                    await self.start()
+                elif next_save.method == "save":
+                    await self.save(countdown=remain_time.total_seconds(), clear_dino=next_save.clear_dino)
+                elif next_save.method == "stop":
+                    await self.stop(countdown=remain_time.total_seconds(), clear_dino=next_save.clear_dino)
+                elif next_save.method == "restart":
+                    await self.restart(countdown=remain_time.total_seconds(), clear_dino=next_save.clear_dino)
+                self.__logger.info(f"[Auto Save]{next_save.method.capitalize()} Finish.")
                 await asleep(1)
             except CancelledError:
                 return
@@ -147,14 +159,14 @@ class ARKServer:
         self.__logger.info(f"[Command]{command} Reply:{result}")
         return result
 
-    async def rcon_status(self, timeout: float=5):
+    async def rcon_status(self, timeout: float=10):
         """
         檢查RCON是否已連線。
         """
         res = await self.rcon.run("test", timeout=timeout)
         return res != None
 
-    def __check(self, pid: int):
+    def __check_pid(self, pid: int):
         try:
             res = self.__target in Process(pid).cmdline()
             if res:
@@ -176,10 +188,10 @@ class ARKServer:
             except NoSuchProcess:
                 pass
         all_pid = pids()
-        result = map(self.__check, all_pid)
+        result = map(self.__check_pid, all_pid)
         return True in result
     
-    async def __save(self, countdown: int=0, clear_dino: bool=False, mode=0):
+    async def __save(self, countdown: int=0, clear_dino: bool=False, mode=0) -> bool:
         if mode == 0:
             message = BROADCAST_MESSAGES.save
         elif mode == 1:
@@ -231,40 +243,45 @@ class ARKServer:
             await self.rcon.run("saveworld")
             await self.rcon.run(f"broadcast {BROADCAST_MESSAGES.saved}")
             await self.__add_to_chat(message=BROADCAST_MESSAGES.saved)
+            time_format = datetime.now(tz=TIMEZONE).replace(microsecond=0).isoformat().replace(":", "_")
+            copyfile(map_path, f"-{time_format}".join(splitext(map_path)))
             if mode < 1:
                 self.__logger.info("[Save]Finish.")
-                return
+                return True
             # 關閉伺服器
             self.__logger.warning("Exit.")
             await self.rcon.run("doexit")
             if mode < 2:
                 self.__logger.info("[Stop]Finish.")
-                return
+                return True
             # 等待伺服器完全關閉
             while self.server_status():
                 await asleep(1)
-            await asleep(5)
             # 重啟伺服器
             await self.start()
             self.__logger.info("[Restart]Finish.")
+            return True
         except CancelledError:
             await self.rcon.run("Slomo 1")
             for task in command_task:
                 task.cancel()
-            return
+            return False
     
-    async def start(self):
+    async def start(self) -> bool:
         """
         啟動伺服器。
         """
         if self.server_status():
-            return
+            return False
         command_file = abspath(join(self.config.dir_path, "ShooterGame\\Saved\\Config\\WindowsServer\\RunServer.cmd"))
         async with aopen(command_file) as _file:
             command_line = await _file.read()
             command_line = command_line.strip()
-        origin_str = list(filter(lambda s: s.startswith("MultiHome="), command_line.split("?")))[0]
-        command_line = command_line.replace(origin_str, "MultiHome=0.0.0.0")
+        try:
+            origin_str = list(filter(lambda s: s.startswith("MultiHome="), command_line.split("?")))[0]
+            command_line = command_line.replace(origin_str, "MultiHome=0.0.0.0")
+        except IndexError:
+            command_line = command_line.replace("listen?", "listen?MultiHome=0.0.0.0?")
         while command_line.startswith("start "):
             command_line = command_line.removeprefix("start ")
         async with aopen(command_file, mode="w") as _file:
@@ -272,10 +289,11 @@ class ARKServer:
         system("start cmd /c \"" + command_file + "\"")
         await self.__add_to_chat(message=BROADCAST_MESSAGES.start)
         self.__logger.warning("Start Server.")
+        return True
     
-    async def check_opera(self):
+    async def check_opera(self) -> bool:
         """
-        檢查是否有程序在執行中。
+        檢查是否有存檔程序在執行中。
         """
         if self.__operation == None:
             return False
@@ -283,50 +301,53 @@ class ARKServer:
             return False
         return True
     
-    async def cancel(self):
+    async def check_accessable(self) -> bool:
+        """
+        檢查伺服器是否在正常運作中。
+        """
+        if await self.check_opera():
+            return False
+        if not self.server_status():
+            return False
+        if not await self.rcon_status():
+            return False
+        return True
+    
+    async def cancel(self) -> bool:
         """
         取消關機/重啟。
         """
         if await self.check_opera():
-            return
+            return False
         self.__operation.cancel()
+        return True
     
-    async def save(self, countdown: int=0, clear_dino: bool=False):
+    async def save(self, countdown: int=0, clear_dino: bool=False) -> bool:
         """
         存檔。
         """
-        if await self.check_opera():
-            return
-        if not self.server_status():
-            return
-        if not await self.rcon_status():
-            return
+        if not await self.check_accessable():
+            return False
         self.__operation = create_task(self.__save(countdown=countdown, clear_dino=clear_dino, mode=0))
         await gather(self.__operation)
+        return True
     
-    async def stop(self, countdown: int=0, clear_dino: bool=False):
+    async def stop(self, countdown: int=0, clear_dino: bool=False) -> bool:
         """
         關機。
         """
-        if await self.check_opera():
-            return
-        if not self.server_status():
-            return
-        if not await self.rcon_status():
-            return
+        if not await self.check_accessable():
+            return False
         self.__operation = create_task(self.__save(countdown=countdown, clear_dino=clear_dino, mode=1))
         await gather(self.__operation)
+        return True
 
-    async def restart(self, countdown: int=0, clear_dino: bool=False):
+    async def restart(self, countdown: int=0, clear_dino: bool=False) -> bool:
         """
         重啟。
         """
-        if await self.check_opera():
-            return
-        if not self.server_status():
-            return
-        if not await self.rcon_status():
-            return
+        if not await self.check_accessable():
+            return False
         self.__operation = create_task(self.__save(countdown=countdown, clear_dino=clear_dino, mode=2))
         await gather(self.__operation)
 
