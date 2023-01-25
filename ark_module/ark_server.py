@@ -231,22 +231,23 @@ class ARKServer:
                     return res.stdout, err
                 # 讀取檔案
                 try:
+                    # 清除恐龍
                     res, err = await loop.run_in_executor(None, __get_dinos)
                     dino_classes: list[str] = Json.loads(res)
+                    __tasks = [
+                        create_task(self.rcon.run(f"DestroyWildDinoClasses \"{dino_class}\" 1", timeout=0), name="DestroyDino")
+                        for dino_class in dino_classes
+                    ]
+                    await gather(*__tasks)
+                    # 清除所有
+                    await self.rcon.run("DestroyWildDinos")
+                    # await self.rcon.run("Slomo 1")
                 except:
-                    self.__logger.error("Read Map Error: " + err)
-                    await self.__add_to_chat(message=f"<@{DISCORD_CONFIG.rcon_role}> 讀取地圖檔失敗，建議檢查地圖檔。 (位置:`" + map_path + "`)")
+                    await self.__add_to_chat(message=f"<@&{DISCORD_CONFIG.rcon_role}> 讀取地圖檔失敗，建議檢查地圖檔。 (位置:`" + map_path + "`)")
                     await self.__add_to_chat(message="```Error Message:\n" + err + "```")
-                    return False
-                # 清除恐龍
-                __tasks = [
-                    create_task(self.rcon.run(f"DestroyWildDinoClasses \"{dino_class}\" 1", timeout=0), name="DestroyDino")
-                    for dino_class in dino_classes
-                ]
-                await gather(*__tasks)
-                # 清除所有
-                await self.rcon.run("DestroyWildDinos")
-                # await self.rcon.run("Slomo 1")
+                    await self.__add_to_chat(message="Save Without Clear Dino...")
+                    self.__logger.error("Read Map Error: " + str(err))
+                    self.__logger.error("Save Without Clear Dino...")
             # 儲存檔案
             self.__logger.warning("Save World.")
             await self.rcon.run("saveworld")
