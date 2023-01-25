@@ -62,6 +62,7 @@ class DiscordBot(Bot):
             return 1
 
         last_status = {}
+        t = 0
         while True:
             try:
                 for unique_key, server in ARK_SERVERS.items():
@@ -73,6 +74,11 @@ class DiscordBot(Bot):
                     )
                     # 檢查伺服器狀態是否有改變
                     if status_code != last_status.get(unique_key):
+                        t += 1
+                    else:
+                        t = 0
+                    if t > 5:
+                        t = 0
                         # 更新狀態
                         last_status[unique_key] = status_code
                         # 發送狀態
