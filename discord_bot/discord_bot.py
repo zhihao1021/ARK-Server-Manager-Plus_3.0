@@ -102,6 +102,7 @@ class DiscordBot(Bot):
                 await gather(*tasks, return_exceptions=True)
                 await asleep(1)
             except CancelledError:
+                print("Status be Cancel")
                 return
     
     async def sync_chat_channel(self):
