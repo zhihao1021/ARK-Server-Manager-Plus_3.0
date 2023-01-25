@@ -218,7 +218,7 @@ class ARKServer:
             map_path = abspath(join(self.config.dir_path, "ShooterGame\\Saved\\SavedArks", self.config.file_name))
             if clear_dino:
                 # 取得當前所有恐龍
-                await self.rcon.run("Slomo 0")
+                # await self.rcon.run("Slomo 0")
                 self.__logger.warning("Pre Save World.")
                 await self.rcon.run("saveworld")
                 self.__logger.warning("Clearing Dinos.")
@@ -237,7 +237,7 @@ class ARKServer:
                 await gather(*__tasks)
                 # 清除所有
                 await self.rcon.run("DestroyWildDinos")
-                await self.rcon.run("Slomo 1")
+                # await self.rcon.run("Slomo 1")
             # 儲存檔案
             self.__logger.warning("Save World.")
             await self.rcon.run("saveworld")
@@ -262,7 +262,7 @@ class ARKServer:
             self.__logger.info("[Restart]Finish.")
             return True
         except CancelledError:
-            await self.rcon.run("Slomo 1")
+            # await self.rcon.run("Slomo 1")
             for task in command_task:
                 task.cancel()
             return False
