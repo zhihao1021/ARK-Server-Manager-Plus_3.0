@@ -195,7 +195,7 @@ class ARKServer:
         async def clean_dino(class_queue: Queue):
             while not class_queue.empty():
                 dino_class = await class_queue.get()
-                self.rcon.run(f"DestroyWildDinoClasses \"{dino_class}\" 1", timeout=0)
+                await self.rcon.run(f"DestroyWildDinoClasses \"{dino_class}\" 1", timeout=0)
         if mode == 0:
             message = BROADCAST_MESSAGES.save
         elif mode == 1:
