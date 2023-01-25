@@ -77,7 +77,7 @@ class DiscordBot(Bot):
                         t += 1
                     else:
                         t = 0
-                    if t > 10:
+                    if t > 5:
                         t = 0
                         # 更新狀態
                         last_status[unique_key] = status_code
