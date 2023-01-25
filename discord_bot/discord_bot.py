@@ -102,8 +102,8 @@ class DiscordBot(Bot):
                 await gather(*tasks)
                 await asleep(1)
             except CancelledError:
-                print("Update Be Cancel")
-                return
+                # print("Update Be Cancel")
+                pass
     
     async def sync_chat_channel(self):
         """
@@ -120,7 +120,7 @@ class DiscordBot(Bot):
                 channel = self.get_channel(ARK_SERVERS[unique_key].config.discord_config.text_channel_id)
                 await channel.send(content)
             except CancelledError:
-                return
+                pass
     
     # Log Handler
     async def on_command(self, ctx: Context):
