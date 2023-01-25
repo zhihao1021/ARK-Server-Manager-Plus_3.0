@@ -250,6 +250,7 @@ class ARKServer:
                 ]
                 await gather(*__tasks)
                 # 清除所有
+                self.__logger.warning("Start Clear All Dino.")
                 await self.rcon.run("DestroyWildDinos")
                 # await self.rcon.run("Slomo 1")
             # 儲存檔案
