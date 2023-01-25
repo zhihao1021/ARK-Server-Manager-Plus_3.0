@@ -41,27 +41,23 @@ class RCONSession:
 
         :return: str | None
         """
-        tasks = (
-            create_task(self.__timeout(timeout=timeout), name="RCON Timeout"),
-            create_task(self.__run(command=command), name="RCON Run"),
-        )
-        self.__timeout_task = tasks[0]
+        self.__run_task = create_task(self.__run(command=command), name="RCON Run")
+        self.__timeout_task = create_task(self.__timeout(timeout=timeout), name="RCON Timeout")
         try:
-            res = await gather(*tasks, return_exceptions=False)
-            if res[1] == None:
+            res = await gather(
+                self.__run_task,
+                self.__timeout_task,
+                return_exceptions=True)
+            if res[0] == None:
                 return None
             else:
-                res = res[1].strip()
+                res = res[0].strip()
                 if res == "Server received, But no response!!":
                     return ""
                 return res
-        except (TimeoutError, ConnectionRefusedError):
-            for task in tasks:
-                task.cancel()
-            return None
         except Exception as exc:
-            for task in tasks:
-                task.cancel()
+            self.__timeout_task.cancel()
+            self.__run_task.cancel()
             error_meg = "".join(format_exception(exc))
             self.__logger.error(error_meg)
             return None
@@ -79,11 +75,7 @@ class RCONSession:
         except CancelledError:
             return
         except TimeoutError:
-            raise TimeoutError
-        except Exception as exc:
-            error_meg = "".join(format_exception(exc))
-            self.__logger.error(error_meg)
-            return None
+            self.__run_task.cancel()
     
     async def __run(self, command: str):
         try:
@@ -95,13 +87,15 @@ class RCONSession:
             )
             self.__timeout_task.cancel()
             return res.strip()
-        except (ConnectionRefusedError, ConnectionResetError):
-            await asleep(2)
+        except ConnectionError:
+            await asleep(1)
             res = await self.__run(command=command)
+            self.__timeout_task.cancel()
             return res
         except CancelledError:
             return None
         except Exception as exc:
             error_meg = "".join(format_exception(exc))
             self.__logger.error(error_meg)
+            self.__timeout_task.cancel()
             return None

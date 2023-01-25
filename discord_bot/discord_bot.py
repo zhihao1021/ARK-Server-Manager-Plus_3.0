@@ -99,11 +99,10 @@ class DiscordBot(Bot):
                     create_task(update(unique_key=unique_key, server=server))
                     for unique_key, server in ARK_SERVERS.items()
                 ]
-                await gather(*tasks)
+                await gather(*tasks, return_exceptions=True)
                 await asleep(1)
-            except CancelledError as __exc:
-                print("Status\n" + "".join(format_exception(__exc)))
-                pass
+            except CancelledError:
+                return
     
     async def sync_chat_channel(self):
         """
@@ -123,9 +122,8 @@ class DiscordBot(Bot):
                     await channel.send(file=File(io, filename="message.txt"))
                 else:
                     await channel.send(content=content)
-            except CancelledError as __exc:
-                print("Sync\n" + "".join(format_exception(__exc)))
-                pass
+            except CancelledError:
+                return
     
     # Log Handler
     async def on_command(self, ctx: Context):
