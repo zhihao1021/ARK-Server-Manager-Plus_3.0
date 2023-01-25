@@ -125,7 +125,7 @@ CONFIG: dict[str, Union[dict, str, int]] = {
         "rcon-role": 0,
     },
     "servers": [
-        # "servers-config/Server1.json",
+        "servers-config/Server-Example.json",
     ],
     "ark-message-filter": {
         "startswith": [

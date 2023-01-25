@@ -10,7 +10,7 @@
         "rcon-role": 0
     },
     "servers": [
-        "servers-config/server-example.json"
+        "servers-config/Server-Example.json"
     ],
     "ark-message-filter": {
         "startswith": [
