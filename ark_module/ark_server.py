@@ -221,6 +221,7 @@ class ARKServer:
                 # await self.rcon.run("Slomo 0")
                 self.__logger.warning("Pre Save World.")
                 await self.rcon.run("saveworld")
+                await asleep(1)
                 self.__logger.warning("Clearing Dinos.")
                 loop = get_event_loop()
                 def __get_dinos():
@@ -241,6 +242,7 @@ class ARKServer:
             # 儲存檔案
             self.__logger.warning("Save World.")
             await self.rcon.run("saveworld")
+            await asleep(1)
             await self.rcon.run(f"broadcast {BROADCAST_MESSAGES.saved}")
             await self.__add_to_chat(message=BROADCAST_MESSAGES.saved)
             time_format = datetime.now(tz=TIMEZONE).replace(microsecond=0).isoformat().replace(":", "_")
