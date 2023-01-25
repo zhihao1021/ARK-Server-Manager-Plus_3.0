@@ -1,6 +1,6 @@
 from .rcon_connection import RCONSession
 
-from configs import ARKTimeData, ARKServerConfig, BROADCAST_MESSAGES, FILTERS, TIMEZONE, SERVERS
+from configs import ALL_DINO_CLASSES, ARKTimeData, ARKServerConfig, BROADCAST_MESSAGES, FILTERS, TIMEZONE, SERVERS
 from modules import Json, Thread
 from swap import DISCORD_CHAT_QUEUE
 
@@ -225,11 +225,16 @@ class ARKServer:
                 self.__logger.warning("Clearing Dinos.")
                 loop = get_event_loop()
                 def __get_dinos():
-                    res = run(f"dinos_reader/Test.exe \"{map_path}\"", stdout=PIPE)
-                    return res.stdout
+                    res = run(f"dinos_reader/Test.exe \"{map_path}\"", stdout=PIPE, stderr=PIPE)
+                    return res.stdout, res.stderr
                 # 讀取檔案
-                res = await loop.run_in_executor(None, __get_dinos)
-                dino_classes: list[str] = Json.loads(res)
+                try:
+                    res, err = await loop.run_in_executor(None, __get_dinos)
+                    dino_classes: list[str] = Json.loads(res)
+                except:
+                    self.__logger.warning("Load Dinos Failed.")
+                    self.__logger.warning(f"Error Message: {err}")
+                    dino_classes: list[str] = ALL_DINO_CLASSES.copy()
                 # 清除恐龍
                 __tasks = [
                     create_task(self.rcon.run(f"DestroyWildDinoClasses \"{dino_class}\" 1", timeout=0), name="DestroyDino")
