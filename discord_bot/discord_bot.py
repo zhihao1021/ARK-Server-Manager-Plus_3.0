@@ -1,9 +1,9 @@
-from ark_module import ARK_SERVERS
+from ark_module import ARK_SERVERS, ARKServer
 from configs import DISCORD_CONFIG, STATUS_MESSAGES
 from modules import Thread
 from swap import DISCORD_CHAT_QUEUE
 
-from asyncio import all_tasks, CancelledError, get_event_loop, sleep as asleep
+from asyncio import all_tasks, CancelledError, create_task, gather, get_event_loop, sleep as asleep
 from io import BytesIO
 from logging import getLogger
 from traceback import format_exception, format_exc
@@ -60,39 +60,44 @@ class DiscordBot(Bot):
                 return 3
             # 完全中斷
             return 1
+        async def update(unique_key: str, server: ARKServer):
+            # 取得伺服器狀態
+            status_code = count_statuscode(
+                await self.loop.run_in_executor(None, server.server_status),
+                await server.rcon_status(),
+                last_status.get(unique_key)
+            )
+            # 檢查伺服器狀態是否有改變
+            if status_code != last_status.get(unique_key):
+                t += 1
+            else:
+                t = 0
+            if t > 5:
+                t = 0
+                # 更新狀態
+                last_status[unique_key] = status_code
+                # 發送狀態
+                result = "伺服器狀態: "
+                if status_code == 0:
+                    result += STATUS_MESSAGES.running
+                elif status_code == 1:
+                    result += STATUS_MESSAGES.stopped
+                elif status_code == 2:
+                    result += STATUS_MESSAGES.starting
+                elif status_code == 3:
+                    result += STATUS_MESSAGES.rcon_disconnect
+                channel = self.get_channel(ARK_SERVERS[unique_key].config.discord_config.text_channel_id)
+                await channel.send(result)
 
         last_status = {}
         t = 0
         while True:
             try:
-                for unique_key, server in ARK_SERVERS.items():
-                    # 取得伺服器狀態
-                    status_code = count_statuscode(
-                        await self.loop.run_in_executor(None, server.server_status),
-                        await server.rcon_status(),
-                        last_status.get(unique_key)
-                    )
-                    # 檢查伺服器狀態是否有改變
-                    if status_code != last_status.get(unique_key):
-                        t += 1
-                    else:
-                        t = 0
-                    if t > 5:
-                        t = 0
-                        # 更新狀態
-                        last_status[unique_key] = status_code
-                        # 發送狀態
-                        result = "伺服器狀態: "
-                        if status_code == 0:
-                            result += STATUS_MESSAGES.running
-                        elif status_code == 1:
-                            result += STATUS_MESSAGES.stopped
-                        elif status_code == 2:
-                            result += STATUS_MESSAGES.starting
-                        elif status_code == 3:
-                            result += STATUS_MESSAGES.rcon_disconnect
-                        channel = self.get_channel(ARK_SERVERS[unique_key].config.discord_config.text_channel_id)
-                        await channel.send(result)
+                tasks = [
+                    create_task(update(unique_key=unique_key, server=server))
+                    for unique_key, server in ARK_SERVERS.items()
+                ]
+                await gather(*tasks)
                 await asleep(1)
             except CancelledError:
                 print("Update Be Cancel")
