@@ -131,3 +131,4 @@ dmypy.json
 *.bak
 test.py
 config.json
+servers-config/

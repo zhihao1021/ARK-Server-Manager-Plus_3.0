@@ -117,7 +117,7 @@ CONFIG: dict[str, Union[dict, str, int]] = {
     "web": {
         "host": "0.0.0.0",
         "port": 5000,
-        "debug": True,
+        "debug": False,
     },
     "discord": {
         "token": "",
