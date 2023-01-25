@@ -52,7 +52,6 @@ class _RCONConfig(BaseModel):
 
 class _DiscordChannels(BaseModel):
     text_channel_id: int=Field(alias="text-channel-id")
-    status_channel_id: int=Field(alias="status-channel-id")
 
 class ARKTimeData(BaseModel):
     time: Union[time, str]

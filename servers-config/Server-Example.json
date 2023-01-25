@@ -10,8 +10,7 @@
         "timeout": 60
     },
     "discord": {
-        "text-channel-id": 0,
-        "status-channel-id": 0
+        "text-channel-id": 0
     },
     "time-table": [
         {
