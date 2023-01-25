@@ -133,6 +133,7 @@ CONFIG: dict[str, Union[dict, str, int]] = {
         ],
         "include": [
             "被自動摧毀了！",
+            ": Destroy ",
             "has entered your zone.",
             "馴養了 一隻",
             "Souls were destroyed by ",
