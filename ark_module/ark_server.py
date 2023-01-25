@@ -192,6 +192,10 @@ class ARKServer:
         return True in result
     
     async def __save(self, countdown: int=0, clear_dino: bool=False, mode=0) -> bool:
+        async def clean_dino(class_queue: Queue):
+            while not class_queue.empty():
+                dino_class = await class_queue.get()
+                self.rcon.run(f"DestroyWildDinoClasses \"{dino_class}\" 1", timeout=0)
         if mode == 0:
             message = BROADCAST_MESSAGES.save
         elif mode == 1:
@@ -228,17 +232,21 @@ class ARKServer:
                     res = run(f"dinos_reader/Test.exe \"{map_path}\"", stdout=PIPE, stderr=PIPE)
                     return res.stdout, res.stderr
                 # 讀取檔案
+                class_queue = Queue()
                 try:
                     res, err = await loop.run_in_executor(None, __get_dinos)
                     dino_classes: list[str] = Json.loads(res)
+                    for dino_class in dino_classes:
+                        await class_queue.put(dino_class)
                 except:
                     self.__logger.warning("Load Dinos Failed.")
                     self.__logger.warning(f"Error Message: {err}")
-                    dino_classes: list[str] = ALL_DINO_CLASSES.copy()
+                    for dino_class in ALL_DINO_CLASSES:
+                        await class_queue.put(dino_class)
                 # 清除恐龍
                 __tasks = [
-                    create_task(self.rcon.run(f"DestroyWildDinoClasses \"{dino_class}\" 1", timeout=0), name="DestroyDino")
-                    for dino_class in dino_classes
+                    create_task(clean_dino(class_queue))
+                    for _ in range(10)
                 ]
                 await gather(*__tasks)
                 # 清除所有
