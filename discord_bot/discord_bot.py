@@ -68,6 +68,7 @@ class DiscordBot(Bot):
                 last_status.get(unique_key)
             )
             # 檢查伺服器狀態是否有改變
+            t = t_dict.get(unique_key, 0)
             if status_code != last_status.get(unique_key):
                 t += 1
             else:
@@ -88,9 +89,10 @@ class DiscordBot(Bot):
                     result += STATUS_MESSAGES.rcon_disconnect
                 channel = self.get_channel(ARK_SERVERS[unique_key].config.discord_config.text_channel_id)
                 await channel.send(result)
+            t_dict[unique_key] = t
 
         last_status = {}
-        t = 0
+        t_dict = {}
         while True:
             try:
                 tasks = [
