@@ -52,6 +52,8 @@ class RCONSession:
             if res[0] == None:
                 return None
             else:
+                if type(res[0]) != str:
+                    return None
                 res = res[0].strip()
                 if res == "Server received, But no response!!":
                     return ""
