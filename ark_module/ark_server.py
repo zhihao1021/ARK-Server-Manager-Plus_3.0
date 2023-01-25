@@ -1,6 +1,6 @@
 from .rcon_connection import RCONSession
 
-from configs import ARKTimeData, ARKServerConfig, BROADCAST_MESSAGES, DISCORD_CONFIG, FILTERS, TIMEZONE, SERVERS
+from configs import ARKTimeData, ARKServerConfig, BROADCAST_MESSAGES, DINO_CLASSES, DISCORD_CONFIG, FILTERS, TIMEZONE, SERVERS
 from modules import Json, Thread
 from swap import DISCORD_CHAT_QUEUE
 
@@ -243,11 +243,24 @@ class ARKServer:
                     await self.rcon.run("DestroyWildDinos")
                     # await self.rcon.run("Slomo 1")
                 except:
-                    await self.__add_to_chat(message=f"<@&{DISCORD_CONFIG.rcon_role}> 讀取地圖檔失敗，建議檢查地圖檔。 (位置:`" + map_path + "`)")
+                    # await self.__add_to_chat(message=f"<@&{DISCORD_CONFIG.rcon_role}> 讀取地圖檔失敗，建議檢查地圖檔。 (位置:`" + map_path + "`)")
+                    await self.__add_to_chat(message=f"讀取地圖檔失敗，建議檢查地圖檔。 (位置:`" + map_path + "`)")
                     await self.__add_to_chat(message="```Error Message:\n" + err + "```")
-                    await self.__add_to_chat(message="Save Without Clear Dino...")
+                    await self.__add_to_chat(message="Save Class File...")
                     self.__logger.error("Read Map Error: " + str(err))
-                    self.__logger.error("Save Without Clear Dino...")
+                    self.__logger.error("Save Class File...")
+                    class_list = DINO_CLASSES.copy()
+                    queue = Queue()
+                    for dino_class in class_list:
+                        await queue.put(dino_class)
+                    async def clear():
+                        while not queue.empty():
+                            dino_class = await queue.get()
+                            await self.rcon.run(f"DestroyWildDinoClasses \"{dino_class}\" 1", timeout=0)
+                    await gather(
+                        *[create_task(clear()) for _ in range(3)], return_exceptions=False
+                    )
+                    await self.rcon.run("DestroyWildDinos", timeout=0)
             # 儲存檔案
             self.__logger.warning("Save World.")
             await self.rcon.run("saveworld")
