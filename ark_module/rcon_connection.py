@@ -96,8 +96,8 @@ class RCONSession:
             self.__timeout_task.cancel()
             return res.strip()
         except ConnectionError:
-            self.__timeout_task.cancel()
-            return None
+            await asleep(0.5)
+            return await self.__run(command=command)
         except CancelledError:
             return None
         except Exception as exc:

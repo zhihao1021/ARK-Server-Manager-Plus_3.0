@@ -85,13 +85,9 @@ class ArkCog(Cog):
         if not await self.__check_user(ctx=ctx):
             return
         server = self.__get_server(ctx=ctx)
-        if server == None:
-            result = "You are not in a server channel."
-        if not await server.rcon_status():
-            result = "RCON Not Connected."
-        else:
+        if await self.__check_server(ctx=ctx, server=server):
             result = await server.run(content)
-        await response(ctx=ctx, content=result)
+            await response(ctx=ctx, content=result)
     
     @ark.command(name="save", description="存檔", options=operation_options)
     async def save(

@@ -159,7 +159,7 @@ class ARKServer:
         self.__logger.info(f"[Command]{command} Reply:{result}")
         return result
 
-    async def rcon_status(self, timeout: float=10):
+    async def rcon_status(self, timeout: float=60):
         """
         檢查RCON是否已連線。
         """
