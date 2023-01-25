@@ -1,0 +1,45 @@
+{
+    "unique-key": "b971b0af",
+    "dir-path": "D:\\asmdata\\Servers\\Server1",
+    "file-name": "TheIsland.ark",
+    "display-name": "TheIsland",
+    "rcon": {
+        "host": "127.0.0.1",
+        "port": 32330,
+        "password": "",
+        "timeout": 60
+    },
+    "discord": {
+        "text-channel-id": 0,
+        "status-channel-id": 0
+    },
+    "time-table": [
+        {
+            "time": "00:00:00",
+            "clear-dino": true,
+            "method": "start"
+        },
+        {
+            "time": "06:00:00",
+            "clear-dino": true,
+            "method": "save"
+        },
+        {
+            "time": "12:00:00",
+            "clear-dino": true,
+            "method": "restart"
+        },
+        {
+            "time": "18:00:00",
+            "clear-dino": true,
+            "method": "stop"
+        }
+    ],
+    "logging": {
+        "stream-level": "INFO",
+        "file-level": "INFO",
+        "backup-count": 30,
+        "file-name": "TheIsland-b971b0af",
+        "dir-path": "logs/arks"
+    }
+}
