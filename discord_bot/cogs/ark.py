@@ -86,8 +86,14 @@ class ArkCog(Cog):
             return
         server = self.__get_server(ctx=ctx)
         if await self.__check_server(ctx=ctx, server=server):
+            mes = await response(ctx=ctx, content="Querying...")
             result = await server.run(content)
-            await response(ctx=ctx, content=result)
+            if result == "":
+                result = "Command Send!"
+            if type(mes) == Message:
+                await mes.edit(content=result)
+            else:
+                await mes.edit_original_response(content=result)
     
     @ark.command(name="save", description="存檔", options=operation_options)
     async def save(
