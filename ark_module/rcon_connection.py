@@ -3,6 +3,7 @@ from logging import getLogger
 from traceback import format_exception
 from typing import Optional
 
+from rcon.exceptions import SessionTimeout
 from rcon.source import rcon
 
 class RCONSession:
@@ -87,8 +88,7 @@ class RCONSession:
             )
             self.__timeout_task.cancel()
             return res.strip()
-        except ConnectionError:
-            await asleep(1)
+        except (ConnectionError, SessionTimeout):
             res = await self.__run(command=command)
             self.__timeout_task.cancel()
             return res
