@@ -214,14 +214,14 @@ class ARKServer:
             await self.rcon.run(f"broadcast {BROADCAST_MESSAGES.saving}")
             await self.__add_to_chat(message=BROADCAST_MESSAGES.saving)
             
+            # 取得地圖檔案位置
+            map_path = abspath(join(self.config.dir_path, "ShooterGame\\Saved\\SavedArks", self.config.file_name))
             if clear_dino:
                 # 取得當前所有恐龍
                 await self.rcon.run("Slomo 0")
                 self.__logger.warning("Pre Save World.")
                 await self.rcon.run("saveworld")
                 self.__logger.warning("Clearing Dinos.")
-                # 取得地圖檔案位置
-                map_path = abspath(join(self.config.dir_path, "ShooterGame\\Saved\\SavedArks", self.config.file_name))
                 loop = get_event_loop()
                 def __get_dinos():
                     res = run(f"dinos_reader/Test.exe \"{map_path}\"", stdout=PIPE)
