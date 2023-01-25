@@ -101,8 +101,8 @@ class DiscordBot(Bot):
                 ]
                 await gather(*tasks)
                 await asleep(1)
-            except CancelledError:
-                print("Update Be Cancel")
+            except CancelledError as __exc:
+                print("Status\n" + "".join(format_exception(__exc)))
                 pass
     
     async def sync_chat_channel(self):
@@ -123,7 +123,8 @@ class DiscordBot(Bot):
                     await channel.send(file=File(io, filename="message.txt"))
                 else:
                     await channel.send(content=content)
-            except CancelledError:
+            except CancelledError as __exc:
+                print("Sync\n" + "".join(format_exception(__exc)))
                 pass
     
     # Log Handler
