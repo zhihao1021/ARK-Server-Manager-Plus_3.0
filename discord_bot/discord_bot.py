@@ -119,8 +119,14 @@ class DiscordBot(Bot):
                 unique_key, content = data.values()
                 channel = self.get_channel(ARK_SERVERS[unique_key].config.discord_config.text_channel_id)
                 if len(content) >= 2000:
-                    io = BytesIO(content.encode())
-                    await channel.send(file=File(io, filename="message.txt"))
+                    if "Error Message:" in content:
+                        content, err = content.split("Error Message:")
+                        io = BytesIO(err.strip().encode())
+                        content += "Error Message:"
+                        await channel.send(content=content, file=File(io, filename="message.txt"))
+                    else:
+                        io = BytesIO(content.encode())
+                        await channel.send(file=File(io, filename="message.txt"))
                 else:
                     await channel.send(content=content)
             except CancelledError:

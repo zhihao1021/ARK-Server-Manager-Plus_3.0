@@ -11,6 +11,7 @@ from os import system
 from os.path import abspath, join, splitext
 from shutil import copyfile
 from subprocess import run, PIPE
+from traceback import format_exception
 from typing import Optional
 
 from aiofiles import open as aopen
@@ -248,15 +249,21 @@ class ARKServer:
                     # await self.rcon.run("Slomo 1")
                 except:
                     # await self.__add_to_chat(message=f"<@&{DISCORD_CONFIG.rcon_role}> 讀取地圖檔失敗，建議檢查地圖檔。 (位置:`" + map_path + "`)")
-                    await self.__add_to_chat(message=f"讀取地圖檔失敗，建議檢查地圖檔。 (位置:`" + map_path + "`)")
-                    await self.__add_to_chat(message="```Error Message:\n" + err + "```")
+                    await self.__add_to_chat(message=f"讀取地圖檔失敗，建議檢查地圖檔。 (位置:`" + map_path + "`)\nError Message: ```" + err + "```")
                     await self.__add_to_chat(message="Save Without Clear Dino...")
                     self.__logger.error("Read Map Error: " + str(err))
                     self.__logger.error("Save Without Clear Dino...")
             await self.rcon.run(f"broadcast {BROADCAST_MESSAGES.saved}")
             await self.__add_to_chat(message=BROADCAST_MESSAGES.saved)
             time_format = datetime.now(tz=TIMEZONE).replace(microsecond=0).isoformat().replace(":", "_")
-            copyfile(map_path, f"-{time_format}".join(splitext(map_path)))
+            try:
+                self.__logger.info("Backup Map File...")
+                await self.__add_to_chat(message="Backup Map File...")
+                copyfile(map_path, f"-{time_format}".join(splitext(map_path)))
+            except Exception as __exc:
+                mes = "".join(format_exception(__exc))
+                self.__logger.error("Backup Failed: " + str(mes))
+                await self.__add_to_chat(message=f"地圖檔備份失敗。\nError Message: ```" + mes + "```")
             if mode < 1:
                 self.__logger.info("[Save]Finish.")
                 return True
