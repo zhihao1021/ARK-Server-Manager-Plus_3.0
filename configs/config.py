@@ -246,10 +246,6 @@ for unique_key, server_config in SERVERS.items():
 
 LOW_BATTERY: int = CONFIG["low-battery"]
 
-with open("classlist") as _file:
-    data = _file.read().strip()
-DINO_CLASSES = data.split("\n")
-
 if False:
     from sqlite3 import connect
     if not isfile("data.db"):

@@ -216,11 +216,15 @@ class ARKServer:
             
             # 取得地圖檔案位置
             map_path = abspath(join(self.config.dir_path, "ShooterGame\\Saved\\SavedArks", self.config.file_name))
+            # 儲存檔案
+            if clear_dino:
+                self.__logger.warning("Pre Save World.")
+            else:
+                self.__logger.warning("Save World.")
+            await self.rcon.run("saveworld")
             if clear_dino:
                 # 取得當前所有恐龍
                 # await self.rcon.run("Slomo 0")
-                self.__logger.warning("Pre Save World.")
-                await self.rcon.run("saveworld")
                 self.__logger.warning("Clearing Dinos.")
                 loop = get_event_loop()
                 def __get_dinos():
@@ -246,24 +250,9 @@ class ARKServer:
                     # await self.__add_to_chat(message=f"<@&{DISCORD_CONFIG.rcon_role}> 讀取地圖檔失敗，建議檢查地圖檔。 (位置:`" + map_path + "`)")
                     await self.__add_to_chat(message=f"讀取地圖檔失敗，建議檢查地圖檔。 (位置:`" + map_path + "`)")
                     await self.__add_to_chat(message="```Error Message:\n" + err + "```")
-                    await self.__add_to_chat(message="Save Class File...")
+                    await self.__add_to_chat(message="Save Without Clear Dino...")
                     self.__logger.error("Read Map Error: " + str(err))
-                    self.__logger.error("Save Class File...")
-                    class_list = DINO_CLASSES.copy()
-                    queue = Queue()
-                    for dino_class in class_list:
-                        await queue.put(dino_class)
-                    async def clear():
-                        while not queue.empty():
-                            dino_class = await queue.get()
-                            await self.rcon.run(f"DestroyWildDinoClasses \"{dino_class}\" 1", timeout=0)
-                    await gather(
-                        *[create_task(clear()) for _ in range(3)], return_exceptions=False
-                    )
-                    await self.rcon.run("DestroyWildDinos", timeout=0)
-            # 儲存檔案
-            self.__logger.warning("Save World.")
-            await self.rcon.run("saveworld")
+                    self.__logger.error("Save Without Clear Dino...")
             await self.rcon.run(f"broadcast {BROADCAST_MESSAGES.saved}")
             await self.__add_to_chat(message=BROADCAST_MESSAGES.saved)
             time_format = datetime.now(tz=TIMEZONE).replace(microsecond=0).isoformat().replace(":", "_")
