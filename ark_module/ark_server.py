@@ -1,6 +1,6 @@
 from .rcon_connection import RCONSession
 
-from configs import ARKTimeData, ARKServerConfig, BROADCAST_MESSAGES, DINO_CLASSES, DISCORD_CONFIG, FILTERS, TIMEZONE, SERVERS
+from configs import ARKTimeData, ARKServerConfig, BROADCAST_MESSAGES, DISCORD_CONFIG, FILTERS, TIMEZONE, SERVERS
 from modules import Json, Thread
 from swap import DISCORD_CHAT_QUEUE
 
