@@ -107,10 +107,17 @@ class ArkCog(Cog):
             return
         server = self.__get_server(ctx=ctx)
         if await self.__check_server(ctx=ctx, server=server):
-            await response(ctx=ctx, content="Save Successful.")
+            mes = await response(ctx=ctx, content="Save Task Start.")
             countdown = int(countdown_min) * 60 + int(countdown_sec)
             cleardino = bool(cleardino)
-            await server.save(countdown=countdown, clear_dino=cleardino)
+            if await server.save(countdown=countdown, clear_dino=cleardino):
+                result = "Save Successful"
+            else:
+                result = "Save Fail"
+            if type(mes) == Message:
+                await mes.edit(content=result)
+            else:
+                await mes.edit_original_response(content=result)
     
     @ark.command(name="stop", description="關閉伺服器", options=operation_options)
     async def stop(
@@ -124,10 +131,17 @@ class ArkCog(Cog):
             return
         server = self.__get_server(ctx=ctx)
         if await self.__check_server(ctx=ctx, server=server):
-            await response(ctx=ctx, content="Stop Successful.")
+            mes = await response(ctx=ctx, content="Stop Task Start.")
             countdown = int(countdown_min) * 60 + int(countdown_sec)
             cleardino = bool(cleardino)
-            await server.stop(countdown=countdown, clear_dino=cleardino)
+            if await server.stop(countdown=countdown, clear_dino=cleardino):
+                result = "Stop Successful"
+            else:
+                result = "Stop Fail"
+            if type(mes) == Message:
+                await mes.edit(content=result)
+            else:
+                await mes.edit_original_response(content=result)
     
     @ark.command(name="restart", description="重啟伺服器", options=operation_options)
     async def restart(
@@ -141,10 +155,17 @@ class ArkCog(Cog):
             return
         server = self.__get_server(ctx=ctx)
         if await self.__check_server(ctx=ctx, server=server):
-            await response(ctx=ctx, content="Restart Successful.")
+            mes = await response(ctx=ctx, content="Restart Task Start.")
             countdown = int(countdown_min) * 60 + int(countdown_sec)
             cleardino = bool(cleardino)
-            await server.restart(countdown=countdown, clear_dino=cleardino)
+            if await server.restart(countdown=countdown, clear_dino=cleardino):
+                result = "Restart Successful"
+            else:
+                result = "Restart Fail"
+            if type(mes) == Message:
+                await mes.edit(content=result)
+            else:
+                await mes.edit_original_response(content=result)
     
     @ark.command(name="cancel", description="取消重啟/存檔/關閉")
     async def cancel(
@@ -157,8 +178,10 @@ class ArkCog(Cog):
         if server == None:
             await response(ctx=ctx, content="You are not in a server channel.")
         else:
-            await server.cancel()
-            await response(ctx=ctx, content="Cancel Successful.")
+            if await server.cancel():
+                await response(ctx=ctx, content="Cancel Successful.")
+            else:
+                await response(ctx=ctx, content="Cancel Fail.")
     
     @ark.command(name="start", description="啟動伺服器")
     async def start(

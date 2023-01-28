@@ -137,15 +137,22 @@ class ARKServer:
                     continue
                 remain_time = target_time - datetime.now(tz=TIMEZONE)
                 self.__logger.info(f"[Auto Save]Remain {remain_time.total_seconds()}s to {next_save.method.capitalize()}.")
+                success = True
                 if next_save.method == "start":
-                    await self.start()
+                    success = await self.start()
                 elif next_save.method == "save":
-                    await self.save(countdown=remain_time.total_seconds(), clear_dino=next_save.clear_dino)
+                    success = await self.save(countdown=remain_time.total_seconds(), clear_dino=next_save.clear_dino)
                 elif next_save.method == "stop":
-                    await self.stop(countdown=remain_time.total_seconds(), clear_dino=next_save.clear_dino)
+                    success = self.stop(countdown=remain_time.total_seconds(), clear_dino=next_save.clear_dino)
                 elif next_save.method == "restart":
-                    await self.restart(countdown=remain_time.total_seconds(), clear_dino=next_save.clear_dino)
+                    success = self.restart(countdown=remain_time.total_seconds(), clear_dino=next_save.clear_dino)
                 self.__logger.info(f"[Auto Save]{next_save.method.capitalize()} Finish.")
+                if success:
+                    await self.__add_to_chat(f"[Auto Save]{next_save.method.capitalize()} in {target_time.isoformat()} Successful.")
+                else:
+                    await self.__add_to_chat(f"[Auto Save]{next_save.method.capitalize()} in {target_time.isoformat()} Fail.")
+                    remain_time = target_time - datetime.now(tz=TIMEZONE)
+                    await asleep(remain_time.total_seconds() + 1)
                 await asleep(1)
             except CancelledError:
                 return
@@ -336,7 +343,7 @@ class ARKServer:
         """
         取消關機/重啟。
         """
-        if await self.check_opera():
+        if not await self.check_opera():
             return False
         self.__operation.cancel()
         return True
