@@ -312,7 +312,7 @@ class ARKServer:
             command_line = command_line.removeprefix("start ")
         async with aopen(command_file, mode="w") as _file:
             await _file.write("start " + command_line)
-        system("start cmd /c \"" + command_file + "\"")
+        system("start cmd /k \"" + command_file + "\"")
         await self.__add_to_chat(message=BROADCAST_MESSAGES.start)
         self.__logger.warning("Start Server.")
         return True
