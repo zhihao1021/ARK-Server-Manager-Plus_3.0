@@ -41,9 +41,11 @@ class SystemCog(Cog):
         res = await loop.run_in_executor(None, lambda: run("git pull", stdout=PIPE, stderr=PIPE))
         files = []
         if res.stdout != None and res.stdout != b"":
-            files.append(File(BytesIO("STDOUT - Update:\n" + res.stdout), filename="stdout.log"))
+            __pre = "STDOUT - Update:\n"
+            files.append(File(BytesIO(__pre.encode() + res.stdout), filename="stdout.log"))
         if res.stderr != None and res.stderr != b"":
-            files.append(File(BytesIO("STDERR - Update:\n" + res.stderr), filename="stderr.log"))
+            __pre = "STDERR - Update:\n"
+            files.append(File(BytesIO(__pre.encode() + res.stderr), filename="stderr.log"))
         
         if type(mes) == Message:
             await mes.edit(content="Result:", files=files)
@@ -57,9 +59,11 @@ class SystemCog(Cog):
         res = await loop.run_in_executor(None, lambda: run(command, stdout=PIPE, stderr=PIPE))
         files = []
         if res.stdout != None and res.stdout != b"":
-            files.append(File(BytesIO("STDOUT - " + command + ":\n" + res.stdout), filename="stdout.log"))
+            __pre = "STDOUT - " + command + ":\n"
+            files.append(File(BytesIO(__pre.encode() + res.stdout), filename="stdout.log"))
         if res.stderr != None and res.stderr != b"":
-            files.append(File(BytesIO("STDERR - " + command + ":\n" + res.stderr), filename="stderr.log"))
+            __pre = "STDERR - " + command + ":\n"
+            files.append(File(BytesIO(__pre.encode() + res.stderr), filename="stderr.log"))
         
         if type(mes) == Message:
             await mes.edit(content="Result:", files=files)
