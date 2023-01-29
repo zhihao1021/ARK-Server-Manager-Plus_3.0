@@ -146,6 +146,7 @@ class ARKServer:
                     success = self.stop(countdown=remain_time.total_seconds(), clear_dino=next_save.clear_dino)
                 elif next_save.method == "restart":
                     success = self.restart(countdown=remain_time.total_seconds(), clear_dino=next_save.clear_dino)
+                self.__logger.info(f"[Auto Save]{next_save.method}")
                 self.__logger.info(f"[Auto Save]{next_save.method.capitalize()} Finish.")
                 if success:
                     await self.__add_to_chat(f"[Auto Save]{next_save.method.capitalize()} in {target_time.isoformat()} Successful.")
