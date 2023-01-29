@@ -1,5 +1,5 @@
 from ctypes import pythonapi, py_object
-from os import _exit()
+from os import _exit
 from threading import current_thread, enumerate as thread_enumerate, main_thread, Thread as OThread, ThreadError
 from time import sleep
 from logging import getLogger
