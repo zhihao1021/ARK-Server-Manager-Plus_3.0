@@ -253,6 +253,7 @@ class ARKServer:
                     await gather(*__tasks)
                     # 清除所有
                     await self.rcon.run("DestroyWildDinos")
+                    await self.rcon.run("saveworld")
                     # await self.rcon.run("Slomo 1")
                 except:
                     # await self.__add_to_chat(message=f"<@&{DISCORD_CONFIG.rcon_role}> 讀取地圖檔失敗，建議檢查地圖檔。 (位置:`" + map_path + "`)")
