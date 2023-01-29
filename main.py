@@ -7,7 +7,7 @@ from os import getpid
 from os.path import isfile
 from platform import system
 
-from psutil import NoSuchProcess, Process
+from psutil import AccessDenied, NoSuchProcess, Process
 
 if __name__ == "__main__":
     if isfile("PID"):
@@ -16,7 +16,7 @@ if __name__ == "__main__":
         try:
             print(f"Waiting For PID: {last_pid}")
             Process(last_pid).wait()
-        except NoSuchProcess:
+        except (NoSuchProcess, AccessDenied):
             pass
 
     if system() == "Windows":
