@@ -47,7 +47,7 @@ def __auto_kill():
                     pythonapi.PyThreadState_SetAsyncExc(thread.ident, py_object(SystemExit))
                 thread.join()
     logger.warning("All threads were stopped.")
-    _exit()
+    _exit(0)
     current_thread().stop()
 
 __auto_kill_thread = Thread(target=__auto_kill, name="AutoKillThread")

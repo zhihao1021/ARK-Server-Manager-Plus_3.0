@@ -19,14 +19,14 @@ class SystemCog(Cog):
     async def stop(self, ctx: BridgeContext):
         await response(ctx=ctx, content="Stop in 5 Second...")
         await asleep(5)
-        _exit()
+        _exit(0)
 
     @system.command(name="restart-bot")
     async def restart_bot(self, ctx: BridgeContext):
         await response(ctx=ctx, content="Restart in 5 Second...")
         system("start start.cmd")
         await asleep(5)
-        _exit()
+        _exit(0)
 
 def setup(bot: Bot):
     bot.add_cog(SystemCog(bot))
