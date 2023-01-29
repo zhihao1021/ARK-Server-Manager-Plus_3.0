@@ -2,6 +2,7 @@
     "package": "discord_bot.cogs",
     "cogs": {
         "HelloWorldCog": "hello_world",
-        "ArkCog": "ark"
+        "ArkCog": "ark",
+        "SystemCog": "system"
     }
 }

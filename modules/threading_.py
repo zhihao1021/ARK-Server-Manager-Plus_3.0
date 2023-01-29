@@ -1,4 +1,5 @@
 from ctypes import pythonapi, py_object
+from os import _exit
 from threading import current_thread, enumerate as thread_enumerate, main_thread, Thread as OThread, ThreadError
 from time import sleep
 from logging import getLogger
@@ -46,6 +47,7 @@ def __auto_kill():
                     pythonapi.PyThreadState_SetAsyncExc(thread.ident, py_object(SystemExit))
                 thread.join()
     logger.warning("All threads were stopped.")
+    _exit(0)
     current_thread().stop()
 
 __auto_kill_thread = Thread(target=__auto_kill, name="AutoKillThread")

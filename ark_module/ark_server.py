@@ -137,7 +137,7 @@ class ARKServer:
                     continue
                 remain_time = target_time - datetime.now(tz=TIMEZONE)
                 self.__logger.info(f"[Auto Save]Remain {remain_time.total_seconds()}s to {next_save.method.capitalize()}.")
-                success = True
+                success = False
                 if next_save.method == "start":
                     success = await self.start()
                 elif next_save.method == "save":
@@ -145,7 +145,7 @@ class ARKServer:
                 elif next_save.method == "stop":
                     success = self.stop(countdown=remain_time.total_seconds(), clear_dino=next_save.clear_dino)
                 elif next_save.method == "restart":
-                    success = self.restart(countdown=remain_time.total_seconds(), clear_dino=next_save.clear_dino)
+                    success = await self.restart(countdown=remain_time.total_seconds(), clear_dino=next_save.clear_dino)
                 self.__logger.info(f"[Auto Save]{next_save.method.capitalize()} Finish.")
                 if success:
                     await self.__add_to_chat(f"[Auto Save]{next_save.method.capitalize()} in {target_time.isoformat()} Successful.")
@@ -253,6 +253,7 @@ class ARKServer:
                     await gather(*__tasks)
                     # 清除所有
                     await self.rcon.run("DestroyWildDinos")
+                    await self.rcon.run("saveworld")
                     # await self.rcon.run("Slomo 1")
                 except:
                     # await self.__add_to_chat(message=f"<@&{DISCORD_CONFIG.rcon_role}> 讀取地圖檔失敗，建議檢查地圖檔。 (位置:`" + map_path + "`)")
@@ -355,8 +356,7 @@ class ARKServer:
         if not await self.check_accessable():
             return False
         self.__operation = create_task(self.__save(countdown=countdown, clear_dino=clear_dino, mode=0))
-        await gather(self.__operation)
-        return True
+        return await gather(self.__operation)
     
     async def stop(self, countdown: int=0, clear_dino: bool=False) -> bool:
         """
@@ -365,8 +365,7 @@ class ARKServer:
         if not await self.check_accessable():
             return False
         self.__operation = create_task(self.__save(countdown=countdown, clear_dino=clear_dino, mode=1))
-        await gather(self.__operation)
-        return True
+        return await gather(self.__operation)
 
     async def restart(self, countdown: int=0, clear_dino: bool=False) -> bool:
         """
@@ -375,7 +374,7 @@ class ARKServer:
         if not await self.check_accessable():
             return False
         self.__operation = create_task(self.__save(countdown=countdown, clear_dino=clear_dino, mode=2))
-        await gather(self.__operation)
+        return await gather(self.__operation)
 
 def __thread_job(ark_servers: dict[str, ARKServer]):
     loop = new_event_loop()
