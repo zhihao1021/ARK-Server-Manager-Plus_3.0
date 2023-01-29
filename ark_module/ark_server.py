@@ -355,8 +355,7 @@ class ARKServer:
         if not await self.check_accessable():
             return False
         self.__operation = create_task(self.__save(countdown=countdown, clear_dino=clear_dino, mode=0))
-        await gather(self.__operation)
-        return True
+        return await gather(self.__operation)
     
     async def stop(self, countdown: int=0, clear_dino: bool=False) -> bool:
         """
@@ -365,8 +364,7 @@ class ARKServer:
         if not await self.check_accessable():
             return False
         self.__operation = create_task(self.__save(countdown=countdown, clear_dino=clear_dino, mode=1))
-        await gather(self.__operation)
-        return True
+        return await gather(self.__operation)
 
     async def restart(self, countdown: int=0, clear_dino: bool=False) -> bool:
         """
@@ -375,7 +373,7 @@ class ARKServer:
         if not await self.check_accessable():
             return False
         self.__operation = create_task(self.__save(countdown=countdown, clear_dino=clear_dino, mode=2))
-        await gather(self.__operation)
+        return await gather(self.__operation)
 
 def __thread_job(ark_servers: dict[str, ARKServer]):
     loop = new_event_loop()
