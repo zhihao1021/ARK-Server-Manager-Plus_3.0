@@ -137,7 +137,7 @@ class ARKServer:
                     continue
                 remain_time = target_time - datetime.now(tz=TIMEZONE)
                 self.__logger.info(f"[Auto Save]Remain {remain_time.total_seconds()}s to {next_save.method.capitalize()}.")
-                success = True
+                success = False
                 if next_save.method == "start":
                     success = await self.start()
                 elif next_save.method == "save":
