@@ -13,6 +13,8 @@ from discord import ApplicationContext, DiscordException, File, Intents
 from discord.ext.bridge import Bot
 from discord.ext.commands import CommandError, Context, when_mentioned_or
 
+MAIN_LOGGER = getLogger("main")
+
 class DiscordBot(Bot):
     def __init__(self, *args, **kwargs):
         intents = Intents.default()
@@ -169,6 +171,8 @@ class DiscordBot(Bot):
             for task in all_tasks(self.loop):
                 task.cancel()
             self.loop.stop()
+        except Exception as exc:
+            MAIN_LOGGER.error(format_exception(exc))
         self.loop.close()
 
     def startup(self):

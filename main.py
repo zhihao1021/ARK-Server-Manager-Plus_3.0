@@ -30,6 +30,6 @@ if __name__ == "__main__":
     bot = DiscordBot()
     bot.startup()
 
-    from time import sleep, time
+    from time import sleep
     while True:
         sleep(1)
