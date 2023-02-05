@@ -9,7 +9,6 @@ if __name__ == "__main__":
     while True:
         if isfile("PID"):
             if getctime("PID") != last_change_time:
-                sleep(1)
                 last_change_time = getctime("PID")
                 with open("PID", mode="r") as pid_file:
                     last_pid = int(pid_file.read().strip())
