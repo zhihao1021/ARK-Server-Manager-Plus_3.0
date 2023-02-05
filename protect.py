@@ -13,11 +13,11 @@ if __name__ == "__main__":
                 with open("PID", mode="r") as pid_file:
                     last_pid = int(pid_file.read().strip())
                 print(f"Running Process Change, PID: {last_pid}")
-                try:
-                    print(f"Waiting For PID: {last_pid}")
-                    Process(last_pid).wait()
-                    print(f"PID - {last_pid} killed.")
-                    system("start cmd /c \"start.cmd\"")
-                except (NoSuchProcess, AccessDenied):
-                    pass
+            try:
+                print(f"Waiting For PID: {last_pid}")
+                Process(last_pid).wait()
+                print(f"PID - {last_pid} killed.")
+                system("start cmd /c \"start.cmd\"")
+            except (NoSuchProcess, AccessDenied):
+                pass
         sleep(1)
